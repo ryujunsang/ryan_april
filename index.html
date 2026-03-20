@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>어휘 계단 게임</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2ff 0%, #e8f4fd 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 0 0 20px 0;
+  }
+
+  /* Header */
+  #header {
+    background: linear-gradient(135deg, #1a2860, #2574a9);
+    color: white;
+    padding: 16px 20px 14px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(37,116,169,0.3);
+  }
+  #header h1 { font-size: 20px; font-weight: bold; letter-spacing: 0.5px; }
+  #progress-bar-wrap {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 8px;
+  }
+  #progress-bar {
+    height: 8px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #6BFFB8, #FFD700);
+    transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    width: 0%;
+  }
+  #prog-label {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+
+  /* Stair Canvas */
+  #stair-wrap {
+    padding: 16px 16px 0;
+    flex-shrink: 0;
+  }
+  #stair-canvas {
+    width: 100%;
+    border-radius: 16px;
+    display: block;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  /* Game panel */
+  #game-panel {
+    flex: 1;
+    padding: 14px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #hint-label {
+    font-size: 12px;
+    color: #667;
+    font-style: italic;
+  }
+
+  #meaning-box {
+    background: white;
+    border: 1.5px solid #c5d0f0;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 18px;
+    color: #1a2860;
+    font-weight: 500;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(37,116,169,0.08);
+  }
+
+  #feedback {
+    font-size: 15px;
+    font-weight: bold;
+    min-height: 28px;
+    padding: 2px 0;
+  }
+  .fb-correct { color: #1e8449; }
+  .fb-wrong   { color: #c0392b; }
+  .fb-empty   { color: #ca6f1e; }
+
+  #answer-input {
+    font-size: 16px;
+    padding: 12px 14px;
+    border: 2px solid #99b;
+    border-radius: 10px;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  #answer-input:focus { border-color: #2574a9; }
+  #answer-input:disabled { background: #f5f5f5; color: #888; }
+
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+  #btn-check  { background: #2574a9; }
+  #btn-next   { background: #1e8449; }
+  #btn-retry  { background: #8e44ad; width: 100%; }
+
+  #score-label {
+    font-size: 12px;
+    color: #556;
+    text-align: right;
+    padding-right: 2px;
+  }
+
+  /* Overlay modal */
+  #modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  #modal-overlay.show { display: flex; }
+  #modal-box {
+    background: linear-gradient(160deg, #19195080, #05051e);
+    border: 2px solid #FFD700;
+    border-radius: 20px;
+    padding: 30px 24px 24px;
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  #modal-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 12px;
+  }
+  #modal-msg {
+    font-size: 14px;
+    color: #d2f0ff;
+    line-height: 1.6;
+    white-space: pre-line;
+    margin-bottom: 20px;
+  }
+  #modal-ok {
+    background: #f39c12;
+    color: white;
+    border: 2px solid #e67e22;
+    border-radius: 10px;
+    padding: 10px 44px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #confetti-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <h1>어휘 계단 게임 🐻</h1>
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+    <div id="prog-label">문제 1 / 30</div>
+  </div>
+
+  <div id="stair-wrap">
+    <canvas id="stair-canvas" height="240"></canvas>
+  </div>
+
+  <div id="game-panel">
+    <div id="hint-label">한국어 뜻 → 영어 단어 입력하세요:</div>
+    <div id="meaning-box">loading...</div>
+    <div id="feedback"> </div>
+    <input type="text" id="answer-input" placeholder="영어 단어를 입력하세요..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="btn-row">
+      <button class="btn" id="btn-check">정답 확인</button>
+      <button class="btn" id="btn-next" disabled>다음 단어 →</button>
+    </div>
+    <button class="btn btn-retry" id="btn-retry" style="background:#8e44ad;">처음부터 다시 시작</button>
+    <div id="score-label">계단: 0 / 30  |  정답: 0 / 0</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <canvas id="confetti-canvas"></canvas>
+    <div id="modal-title">축하합니다!</div>
+    <div id="modal-msg"></div>
+    <button id="modal-ok">확인</button>
+  </div>
+</div>
+
+<script>
+const VOCAB = [
+  {"word":"brief","meaning":"adj. 간략한 (short)"},
+  {"word":"renovation","meaning":"n. 수리 (redevelopment)"},
+  {"word":"out-of-order","meaning":"adj. 사용할 수 없는"},
+  {"word":"complete","meaning":"adj. 완료된 (accomplished)"},
+  {"word":"inconvenience","meaning":"n. 불편 (trouble)"},
+  {"word":"vote","meaning":"v. 투표하다"},
+  {"word":"detention","meaning":"n. 방과 후 남게 하기 (custody)"},
+  {"word":"receive","meaning":"v. 얻다 (get)"},
+  {"word":"peel off","meaning":"v. 껍질을 벗기다"},
+  {"word":"rotten","meaning":"adj. 썩은 (decaying)"},
+  {"word":"despite","meaning":"prep. ~에도 불구하고 (in spite of)"},
+  {"word":"forbid","meaning":"v. 금하다 (prohibit, ban)"},
+  {"word":"involve","meaning":"v. 포함하다"},
+  {"word":"express","meaning":"v. 표현하다 (show)"},
+  {"word":"intended for","meaning":"~를 위해서 만들어진, 계획된"},
+  {"word":"deaf","meaning":"adj. 청각 장애가 있는"},
+  {"word":"mute","meaning":"adj. 말을 못하는, 벙어리의"},
+  {"word":"impressively","meaning":"adv. 인상 깊게"},
+  {"word":"ape","meaning":"n. 유인원"},
+  {"word":"vocal cords","meaning":"성대"},
+  {"word":"companionship","meaning":"n. 동료애 (friendship)"},
+  {"word":"eventually","meaning":"adv. 마침내 (finally)"},
+  {"word":"combine","meaning":"v. 결합하다 (put together)"},
+  {"word":"now and then","meaning":"가끔 (sometimes)"},
+  {"word":"waste","meaning":"n. 쓰레기, 낭비 (garbage, lavishness)"},
+  {"word":"semester","meaning":"n. 학기"},
+  {"word":"note","meaning":"n. 음표"},
+  {"word":"scream","meaning":"v. 소리지르다 (shout)"},
+  {"word":"latest","meaning":"adj. 최근의 (current)"},
+  {"word":"wonder","meaning":"v. 궁금해하다 (question)"}
+];
+
+const N = VOCAB.length;
+let order = [], qi = 0, cc = 0, stairPos = 0, answered = false, cleared = false;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function resetState() {
+  order = Array.from({length: N}, (_, i) => i);
+  shuffle(order);
+  qi = 0; cc = 0; stairPos = 0; answered = false; cleared = false;
+  animTarget = 0; animCurrent = 0;
+  document.getElementById('answer-input').value = '';
+  document.getElementById('feedback').textContent = ' ';
+  document.getElementById('feedback').className = '';
+  document.getElementById('btn-check').disabled = false;
+  document.getElementById('btn-next').disabled = true;
+  document.getElementById('answer-input').disabled = false;
+  document.getElementById('answer-input').focus();
+  refresh();
+}
+
+function refresh() {
+  const item = VOCAB[order[qi]];
+  document.getElementById('meaning-box').textContent = item.meaning;
+  document.getElementById('prog-label').textContent = `문제 ${qi + 1} / ${N}`;
+  document.getElementById('progress-bar').style.width = `${(qi / N) * 100}%`;
+  document.getElementById('feedback').textContent = ' ';
+  document.getElementById('feedback').className = '';
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').disabled = false;
+  document.getElementById('answer-input').focus();
+  document.getElementById('btn-check').disabled = false;
+  document.getElementById('btn-next').disabled = true;
+  answered = false;
+  updateScore();
+}
+
+function updateScore() {
+  document.getElementById('score-label').textContent =
+    `계단: ${Math.round(stairPos)} / ${N}  |  정답: ${cc} / ${qi}`;
+}
+
+function checkAnswer() {
+  if (answered) return;
+  const input = document.getElementById('answer-input').value.trim();
+  const fb = document.getElementById('feedback');
+  if (!input) {
+    fb.textContent = '단어를 입력하세요!';
+    fb.className = 'fb-empty';
+    return;
+  }
+  answered = true;
+  document.getElementById('answer-input').disabled = true;
+  document.getElementById('btn-check').disabled = true;
+  const item = VOCAB[order[qi]];
+  const ok = input.toLowerCase() === item.word.toLowerCase();
+  if (ok) {
+    cc++;
+    fb.textContent = '정답! → ' + item.word;
+    fb.className = 'fb-correct';
+  } else {
+    fb.textContent = '미끄러짐!  정답: ' + item.word;
+    fb.className = 'fb-wrong';
+  }
+  const delta = ok ? 1 : -1;
+  animTarget = Math.max(0, Math.min(N, stairPos + delta));
+  startAnim(() => {
+    stairPos = animTarget;
+    updateScore();
+    if (stairPos >= N && !cleared) {
+      cleared = true;
+      setTimeout(() => showWin(), 100);
+    } else if (qi === N - 1) {
+      setTimeout(() => showEnd(), 400);
+    } else {
+      document.getElementById('btn-next').disabled = false;
+    }
+  });
+}
+
+// Animation
+let animCurrent = 0, animTarget = 0, animRaf = null, animDone = null;
+function startAnim(cb) {
+  animDone = cb;
+  if (animRaf) cancelAnimationFrame(animRaf);
+  animStep();
+}
+function animStep() {
+  const diff = animTarget - animCurrent;
+  if (Math.abs(diff) < 0.01) {
+    animCurrent = animTarget;
+    drawStairs(animCurrent);
+    if (animDone) { animDone(); animDone = null; }
+    return;
+  }
+  animCurrent += diff * 0.18;
+  drawStairs(animCurrent);
+  animRaf = requestAnimationFrame(animStep);
+}
+
+// Draw staircase
+const canvas = document.getElementById('stair-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const wrap = document.getElementById('stair-wrap');
+  canvas.width = wrap.clientWidth - 32;
+  canvas.height = Math.min(220, canvas.width * 0.55);
+  drawStairs(animCurrent);
+}
+
+function drawStairs(pos) {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#78c3ff');
+  sky.addColorStop(0.6, '#c8ebff');
+  sky.addColorStop(1, '#e6f8d2');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // Ground
+  ctx.fillStyle = '#82d255';
+  ctx.fillRect(0, H - 22, W, 22);
+  ctx.fillStyle = '#64af38';
+  ctx.fillRect(0, H - 22, W, 5);
+
+  // Stairs
+  const sw = W * 0.75, sh = (H - 36) / N;
+  const lx = (W - sw) / 2;
+  for (let i = 0; i < N; i++) {
+    const ty = H - 22 - (i + 1) * sh;
+    const done = i < pos;
+    if (done) {
+      ctx.fillStyle = '#6ed46e';
+    } else {
+      ctx.fillStyle = i % 2 === 0 ? '#dad0c6' : '#c6bcb2';
+    }
+    ctx.fillRect(lx, ty, sw, sh);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillRect(lx, ty, sw, 2);
+    ctx.fillStyle = done ? '#4aaa4a' : '#9c8c7e';
+    ctx.fillRect(lx, ty + sh - 2, sw, 2);
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(lx, ty, sw, sh);
+    if (sh >= 8) {
+      ctx.fillStyle = 'rgba(70,50,30,0.6)';
+      ctx.font = `${Math.max(5, Math.floor(sh * 0.55))}px Arial`;
+      ctx.fillText(String(i + 1), lx + 3, ty + sh - 2);
+    }
+  }
+
+  // Trophy at top
+  const tx = lx + sw * 0.78, ty2 = H - 22 - N * sh - 26;
+  ctx.fillStyle = '#a05a14';
+  ctx.beginPath(); ctx.roundRect(tx, ty2 + 10, 24, 16, 3); ctx.fill();
+  ctx.fillStyle = '#c88222';
+  ctx.beginPath(); ctx.roundRect(tx, ty2, 24, 12, 3); ctx.fill();
+  ctx.fillStyle = '#f0c800';
+  ctx.beginPath(); ctx.arc(tx + 12, ty2 + 5, 5, 0, Math.PI * 2); ctx.fill();
+
+  // Bear
+  drawBear(ctx, lx + 22, H - 22 - pos * sh);
+}
+
+function drawBear(c, x, y) {
+  c.save();
+  // Shadow
+  c.fillStyle = 'rgba(0,0,0,0.15)';
+  c.beginPath(); c.ellipse(x, y + 4, 12, 4, 0, 0, Math.PI * 2); c.fill();
+  // Body
+  c.fillStyle = '#c27828';
+  c.beginPath(); c.roundRect(x - 9, y - 14, 18, 16, 6); c.fill();
+  // Head
+  c.fillStyle = '#d28030';
+  c.beginPath(); c.arc(x, y - 22, 13, 0, Math.PI * 2); c.fill();
+  // Face highlight
+  c.fillStyle = '#f0c070';
+  c.beginPath(); c.ellipse(x, y - 19, 8, 7, 0, 0, Math.PI * 2); c.fill();
+  // Ears
+  c.fillStyle = '#b06020';
+  c.beginPath(); c.arc(x - 10, y - 33, 6, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(x + 10, y - 33, 6, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#e08060';
+  c.beginPath(); c.arc(x - 10, y - 33, 3, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(x + 10, y - 33, 3, 0, Math.PI * 2); c.fill();
+  // Eyes
+  c.fillStyle = 'white';
+  c.beginPath(); c.ellipse(x - 4, y - 23, 4, 4.5, 0, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.ellipse(x + 4, y - 23, 4, 4.5, 0, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#1a0a04';
+  c.beginPath(); c.arc(x - 4, y - 23, 2.5, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(x + 4, y - 23, 2.5, 0, Math.PI * 2); c.fill();
+  c.fillStyle = 'white';
+  c.beginPath(); c.arc(x - 3, y - 24, 1, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(x + 5, y - 24, 1, 0, Math.PI * 2); c.fill();
+  // Nose
+  c.fillStyle = '#3a1a08';
+  c.beginPath(); c.ellipse(x, y - 17, 4, 3, 0, 0, Math.PI * 2); c.fill();
+  c.restore();
+}
+
+// Confetti for win modal
+let confettiParts = [];
+let confRaf = null;
+const cfCanvas = document.getElementById('confetti-canvas');
+const cfCtx = cfCanvas.getContext('2d');
+const COLORS = ['#FFD700','#FF6B6B','#6BFFB8','#6BB8FF','#FF6BFF','#FFAA00'];
+
+function startConfetti() {
+  cfCanvas.width = cfCanvas.parentElement.offsetWidth;
+  cfCanvas.height = cfCanvas.parentElement.offsetHeight;
+  confettiParts = Array.from({length: 35}, () => ({
+    x: Math.random() * cfCanvas.width,
+    y: Math.random() * cfCanvas.height * 0.5,
+    sp: 0.8 + Math.random() * 1.5,
+    dx: (Math.random() - 0.5) * 1.2,
+    col: COLORS[Math.floor(Math.random() * COLORS.length)],
+    sz: 5 + Math.floor(Math.random() * 5),
+    t: Math.random() * 100
+  }));
+  if (confRaf) cancelAnimationFrame(confRaf);
+  drawConfetti();
+}
+
+function drawConfetti() {
+  cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
+  confettiParts.forEach(p => {
+    p.t++;
+    p.x = Math.max(0, Math.min(cfCanvas.width, p.x + p.dx * Math.sin(p.t * 0.05)));
+    p.y = (p.y + p.sp) % cfCanvas.height;
+    cfCtx.fillStyle = p.col;
+    cfCtx.beginPath();
+    cfCtx.roundRect(p.x, p.y, p.sz, p.sz, 2);
+    cfCtx.fill();
+  });
+  confRaf = requestAnimationFrame(drawConfetti);
+}
+
+function stopConfetti() {
+  if (confRaf) cancelAnimationFrame(confRaf);
+  cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
+}
+
+function showModal(title, msg) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-overlay').classList.add('show');
+  startConfetti();
+}
+
+function hideModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  stopConfetti();
+}
+
+function showWin() {
+  showModal('🎉 완전 정복!', `모든 계단을 올라갔어요!\n정답: ${cc} / ${qi + 1}\n\n훌륭해요! 다시 도전해서\n더 높은 점수를 노려봐요!`);
+}
+
+function showEnd() {
+  showModal('게임 종료', `모든 문제를 풀었어요!\n정답: ${cc} / ${N}\n\n처음부터 다시 도전해봐요!`);
+}
+
+// Event listeners
+document.getElementById('btn-check').addEventListener('click', checkAnswer);
+document.getElementById('btn-next').addEventListener('click', () => { qi++; refresh(); });
+document.getElementById('btn-retry').addEventListener('click', () => {
+  if (confirm('처음부터 다시 시작할까요?')) resetState();
+});
+document.getElementById('answer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (answered) { if (qi < N - 1) { qi++; refresh(); } }
+    else checkAnswer();
+  }
+});
+document.getElementById('modal-ok').addEventListener('click', () => {
+  hideModal(); resetState();
+});
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', () => { resizeCanvas(); resetState(); });
+</script>
+</body>
+</html>
