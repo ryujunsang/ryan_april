@@ -52,6 +52,67 @@
     opacity: 0.85;
   }
 
+  /* Unit Select Screen */
+  #select-screen {
+    flex: 1;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #select-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a2860;
+    margin-bottom: 4px;
+  }
+  #select-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #667;
+    margin-bottom: 8px;
+  }
+  .unit-card {
+    background: white;
+    border: 2px solid #c5d0f0;
+    border-radius: 16px;
+    padding: 20px 18px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    box-shadow: 0 2px 8px rgba(37,116,169,0.08);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .unit-card:active { transform: scale(0.97); }
+  .unit-card:hover { border-color: #2574a9; box-shadow: 0 4px 16px rgba(37,116,169,0.18); }
+  .unit-card-num {
+    font-size: 11px;
+    font-weight: bold;
+    color: #2574a9;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+  .unit-card-title {
+    font-size: 17px;
+    font-weight: bold;
+    color: #1a2860;
+    margin-bottom: 4px;
+  }
+  .unit-card-sub {
+    font-size: 12px;
+    color: #889;
+  }
+  .unit-card.list2 { border-left: 5px solid #2574a9; }
+  .unit-card.list3 { border-left: 5px solid #1e8449; }
+  .unit-card.list4 { border-left: 5px solid #8e44ad; }
+  .unit-card.list2 .unit-card-num { color: #2574a9; }
+  .unit-card.list3 .unit-card-num { color: #1e8449; }
+  .unit-card.list4 .unit-card-num { color: #8e44ad; }
+
+  /* Game Screen */
+  #game-screen { display: none; flex-direction: column; flex: 1; }
+
   /* Stair Canvas */
   #stair-wrap {
     padding: 16px 16px 0;
@@ -131,9 +192,9 @@
   }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.45; cursor: default; transform: none; }
-  #btn-check  { background: #2574a9; padding: 16px 0; font-size: 17px; }
-  #btn-next   { background: #1e8449; padding: 16px 0; font-size: 17px; }
-  #btn-retry  { background: #8e44ad; width: auto; align-self: center; padding: 6px 16px; font-size: 11px; font-weight: normal; opacity: 0.6; border-radius: 8px; }
+  #btn-check { background: #2574a9; padding: 16px 0; font-size: 17px; }
+  #btn-next  { background: #1e8449; padding: 16px 0; font-size: 17px; }
+  #btn-retry { background: #8e44ad; width: auto; align-self: center; padding: 6px 16px; font-size: 11px; font-weight: normal; opacity: 0.6; border-radius: 8px; }
 
   #score-label {
     font-size: 12px;
@@ -178,13 +239,24 @@
     white-space: pre-line;
     margin-bottom: 20px;
   }
+  .modal-btn-row { display: flex; gap: 10px; justify-content: center; }
   #modal-ok {
     background: #f39c12;
     color: white;
     border: 2px solid #e67e22;
     border-radius: 10px;
-    padding: 10px 44px;
-    font-size: 16px;
+    padding: 10px 28px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #modal-select {
+    background: #2574a9;
+    color: white;
+    border: 2px solid #1a5a8a;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
   }
@@ -193,31 +265,62 @@
     inset: 0;
     pointer-events: none;
   }
+
+  /* header unit badge */
+  #header-unit {
+    font-size: 11px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="header">
     <h1>어휘 계단 게임 🐻</h1>
-    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
-    <div id="prog-label">문제 1 / 30</div>
+    <div id="header-unit"></div>
+    <div id="progress-bar-wrap" style="display:none"><div id="progress-bar"></div></div>
+    <div id="prog-label" style="display:none">문제 1 / 30</div>
   </div>
 
-  <div id="stair-wrap">
-    <canvas id="stair-canvas" height="240"></canvas>
-  </div>
-
-  <div id="game-panel">
-    <div id="hint-label">한국어 뜻 → 영어 단어 입력하세요:</div>
-    <div id="meaning-box">loading...</div>
-    <div id="feedback"> </div>
-    <input type="text" id="answer-input" placeholder="영어 단어를 입력하세요..." autocomplete="off" autocorrect="off" spellcheck="false">
-    <div class="btn-row">
-      <button class="btn" id="btn-check">정답 확인</button>
-      <button class="btn" id="btn-next" disabled>다음 단어 →</button>
+  <!-- Unit Selection -->
+  <div id="select-screen">
+    <div id="select-title">단원을 선택하세요</div>
+    <div id="select-subtitle">April Technique 1A</div>
+    <div class="unit-card list2" onclick="startGame(0)">
+      <div class="unit-card-num">Vocabulary List 2</div>
+      <div class="unit-card-title">Listening 1 & Grammar Usage 1</div>
+      <div class="unit-card-sub">brief · renovation · out-of-order · complete ···</div>
     </div>
-    <button class="btn btn-retry" id="btn-retry" style="background:#8e44ad;">처음부터 다시 시작</button>
-    <div id="score-label">계단: 0 / 30  |  정답: 0 / 0</div>
+    <div class="unit-card list3" onclick="startGame(1)">
+      <div class="unit-card-num">Vocabulary List 3</div>
+      <div class="unit-card-title">Reading 2 & Grammar 2</div>
+      <div class="unit-card-sub">mural · finalize · operational · facility ···</div>
+    </div>
+    <div class="unit-card list4" onclick="startGame(2)">
+      <div class="unit-card-num">Vocabulary List 4</div>
+      <div class="unit-card-title">Listening 2 & Grammar Usage 2</div>
+      <div class="unit-card-sub">be supposed to · revision · substitute · maternity leave ···</div>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen">
+    <div id="stair-wrap">
+      <canvas id="stair-canvas" height="240"></canvas>
+    </div>
+    <div id="game-panel">
+      <div id="hint-label">한국어 뜻 → 영어 단어 입력하세요:</div>
+      <div id="meaning-box">loading...</div>
+      <div id="feedback"> </div>
+      <input type="text" id="answer-input" placeholder="영어 단어를 입력하세요..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="btn-row">
+        <button class="btn" id="btn-check">정답 확인</button>
+        <button class="btn" id="btn-next" disabled>다음 단어 →</button>
+      </div>
+      <button class="btn" id="btn-retry">처음부터 다시 시작</button>
+      <div id="score-label">계단: 0 / 30  |  정답: 0 / 0</div>
+    </div>
   </div>
 </div>
 
@@ -227,52 +330,153 @@
     <canvas id="confetti-canvas"></canvas>
     <div id="modal-title">축하합니다!</div>
     <div id="modal-msg"></div>
-    <button id="modal-ok">확인</button>
+    <div class="modal-btn-row">
+      <button id="modal-ok">다시 도전</button>
+      <button id="modal-select">단원 선택</button>
+    </div>
   </div>
 </div>
 
 <script>
-const VOCAB = [
-  {"word":"mural","meaning":"n. 벽화"},
-  {"word":"finalize","meaning":"v. 마무리 짓다; end"},
-  {"word":"operational","meaning":"adj. 운영상의; serviceable"},
-  {"word":"facility","meaning":"n. 시설"},
-  {"word":"extended","meaning":"adj. 늘어난; prolonged"},
-  {"word":"accessible","meaning":"adj. 접근 가능한; available"},
-  {"word":"belongings","meaning":"n. 소지품"},
-  {"word":"dispose","meaning":"v. 처분하다; get rid of"},
-  {"word":"remaining","meaning":"adj. 남아있는; left"},
-  {"word":"seasoned","meaning":"adj. 양념이 된; cured"},
-  {"word":"smoked","meaning":"adj. 훈제 된"},
-  {"word":"separate","meaning":"v. 분리하다; isolated"},
-  {"word":"set aside","meaning":"v. 한 쪽으로 치워 놓다; reserve"},
-  {"word":"pushcart","meaning":"n. 손수레"},
-  {"word":"alphabetical","meaning":"adj. 알파벳순의"},
-  {"word":"estimated","meaning":"adj. 추측의"},
-  {"word":"decline","meaning":"v. 감소하다; decrease"},
-  {"word":"alarming","meaning":"adj. 놀라운, 걱정스러운; frightening"},
-  {"word":"drastically","meaning":"adv. 급속히"},
-  {"word":"endangered","meaning":"adj. 멸종의 위기에 처한; vulnerable"},
-  {"word":"conduct","meaning":"v. (어떤 활동을) 하다; do"},
-  {"word":"consume","meaning":"v. 소비하다; spend"},
-  {"word":"favor","meaning":"v. 편애하다; prefer"},
-  {"word":"identify","meaning":"v. 확인하다; name"},
-  {"word":"extensive","meaning":"adj. 대규모의; large"},
-  {"word":"pesticide","meaning":"n. 살충제, 농약"},
-  {"word":"hatch","meaning":"v. 부화하다"},
-  {"word":"apologize","meaning":"v. 사과하다"},
-  {"word":"collaborative","meaning":"adj. 공동의; cooperative"},
-  {"word":"allowance","meaning":"n. 용돈"}
+const ALL_VOCAB = [
+  // List 2: Listening 1 & Grammar Usage 1
+  [
+    {"word":"brief","meaning":"adj. 간략한; short"},
+    {"word":"renovation","meaning":"n. 수리; redevelopment"},
+    {"word":"out-of-order","meaning":"adj. 사용할 수 없는"},
+    {"word":"complete","meaning":"adj. 완료된; accomplished"},
+    {"word":"inconvenience","meaning":"n. 불편; trouble"},
+    {"word":"vote","meaning":"v. 투표하다"},
+    {"word":"detention","meaning":"n. 방과 후 남게 하기; custody"},
+    {"word":"receive","meaning":"v. 얻다; get"},
+    {"word":"peel off","meaning":"v. 껍질을 벗기다"},
+    {"word":"rotten","meaning":"adj. 썩은; decaying"},
+    {"word":"despite","meaning":"prep. ~에도 불구하고; in spite of"},
+    {"word":"forbid","meaning":"v. 금하다; prohibit, ban"},
+    {"word":"involve","meaning":"v. 포함하다"},
+    {"word":"express","meaning":"v. 표현하다; show"},
+    {"word":"intended for","meaning":"~를 위해서 만들어진, 계획된"},
+    {"word":"deaf","meaning":"adj. 청각 장애가 있는"},
+    {"word":"mute","meaning":"adj. 말을 못하는, 벙어리의"},
+    {"word":"impressively","meaning":"adv. 인상 깊게"},
+    {"word":"ape","meaning":"n. 유인원"},
+    {"word":"vocal cords","meaning":"성대"},
+    {"word":"companionship","meaning":"n. 동료애; friendship"},
+    {"word":"eventually","meaning":"adv. 마침내; finally"},
+    {"word":"combine","meaning":"v. 결합하다; put together"},
+    {"word":"now and then","meaning":"가끔; sometimes"},
+    {"word":"waste","meaning":"n. 쓰레기, 낭비; garbage, lavishness"},
+    {"word":"semester","meaning":"n. 학기"},
+    {"word":"note","meaning":"n. 음표"},
+    {"word":"scream","meaning":"v. 소리지르다; shout"},
+    {"word":"latest","meaning":"adj. 최근의; current"},
+    {"word":"wonder","meaning":"v. 궁금해하다; question"}
+  ],
+  // List 3: Reading 2 & Grammar 2
+  [
+    {"word":"mural","meaning":"n. 벽화"},
+    {"word":"finalize","meaning":"v. 마무리 짓다; end"},
+    {"word":"operational","meaning":"adj. 운영상의; serviceable"},
+    {"word":"facility","meaning":"n. 시설"},
+    {"word":"extended","meaning":"adj. 늘어난; prolonged"},
+    {"word":"accessible","meaning":"adj. 접근 가능한; available"},
+    {"word":"belongings","meaning":"n. 소지품"},
+    {"word":"dispose","meaning":"v. 처분하다; get rid of"},
+    {"word":"remaining","meaning":"adj. 남아있는; left"},
+    {"word":"seasoned","meaning":"adj. 양념이 된; cured"},
+    {"word":"smoked","meaning":"adj. 훈제 된"},
+    {"word":"separate","meaning":"v. 분리하다; isolated"},
+    {"word":"set aside","meaning":"v. 한 쪽으로 치워 놓다; reserve"},
+    {"word":"pushcart","meaning":"n. 손수레"},
+    {"word":"alphabetical","meaning":"adj. 알파벳순의"},
+    {"word":"estimated","meaning":"adj. 추측의"},
+    {"word":"decline","meaning":"v. 감소하다; decrease"},
+    {"word":"alarming","meaning":"adj. 놀라운, 걱정스러운; frightening"},
+    {"word":"drastically","meaning":"adv. 급속히"},
+    {"word":"endangered","meaning":"adj. 멸종의 위기에 처한; vulnerable"},
+    {"word":"conduct","meaning":"v. (어떤 활동을) 하다; do"},
+    {"word":"consume","meaning":"v. 소비하다; spend"},
+    {"word":"favor","meaning":"v. 편애하다; prefer"},
+    {"word":"identify","meaning":"v. 확인하다; name"},
+    {"word":"extensive","meaning":"adj. 대규모의; large"},
+    {"word":"pesticide","meaning":"n. 살충제, 농약"},
+    {"word":"hatch","meaning":"v. 부화하다"},
+    {"word":"apologize","meaning":"v. 사과하다"},
+    {"word":"collaborative","meaning":"adj. 공동의; cooperative"},
+    {"word":"allowance","meaning":"n. 용돈"}
+  ],
+  // List 4: Listening 2 & Grammar Usage 2
+  [
+    {"word":"be supposed to","meaning":"v. ~ 하기로 되어 있다"},
+    {"word":"revision","meaning":"n. 수정, 정정; rewriting"},
+    {"word":"substitute","meaning":"adj. 대체의, 대신하는; alternate"},
+    {"word":"maternity leave","meaning":"n. 출산 휴가"},
+    {"word":"conference","meaning":"n. 회의, 학회"},
+    {"word":"due","meaning":"adj. ~하기로 되어 있는, 예정된; expected"},
+    {"word":"left","meaning":"adj. 남아 있는; remaining"},
+    {"word":"primarily","meaning":"adv. 주로; mainly"},
+    {"word":"regular","meaning":"adj. 규칙적인; scheduled"},
+    {"word":"patrol","meaning":"n. 순찰; guard"},
+    {"word":"territory","meaning":"n. 영역; region"},
+    {"word":"rather","meaning":"adv. 오히려; preferably"},
+    {"word":"awareness","meaning":"n. 의식, 관심; consciousness"},
+    {"word":"distribute","meaning":"v. 배포하다; hand out"},
+    {"word":"apparently","meaning":"adv. 분명하게"},
+    {"word":"environmental","meaning":"adj. 환경의"},
+    {"word":"walkabout","meaning":"n. 도보 여행"},
+    {"word":"aborigine","meaning":"n. 원주민"},
+    {"word":"wilderness","meaning":"n. 황야, 벌판"},
+    {"word":"naked","meaning":"adj. 발가벗은"},
+    {"word":"folk","meaning":"n. 사람들; people"},
+    {"word":"modern","meaning":"adj. 현대의; contemporary"},
+    {"word":"sightseeing","meaning":"n. 관광"},
+    {"word":"spot","meaning":"v. 찾다; look for"},
+    {"word":"handle","meaning":"v. 다루다; manage"},
+    {"word":"last","meaning":"v. 지속되다"},
+    {"word":"keep an eye on","meaning":"v. ~을 계속 지켜보다; watch"},
+    {"word":"vocalist","meaning":"n. 가수"},
+    {"word":"perform","meaning":"v. 공연하다; play"},
+    {"word":"take off","meaning":"v. 대인기를 얻다"}
+  ]
 ];
 
-const N = VOCAB.length;
+const UNIT_NAMES = [
+  'List 2 · Listening 1 & Grammar Usage 1',
+  'List 3 · Reading 2 & Grammar 2',
+  'List 4 · Listening 2 & Grammar Usage 2'
+];
+
+let VOCAB = [];
+let N = 30;
 let order = [], qi = 0, cc = 0, stairPos = 0, answered = false, cleared = false;
+let currentUnit = -1;
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
+}
+
+function showSelectScreen() {
+  document.getElementById('select-screen').style.display = 'flex';
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('progress-bar-wrap').style.display = 'none';
+  document.getElementById('prog-label').style.display = 'none';
+  document.getElementById('header-unit').textContent = '';
+}
+
+function startGame(unitIdx) {
+  currentUnit = unitIdx;
+  VOCAB = ALL_VOCAB[unitIdx];
+  N = VOCAB.length;
+  document.getElementById('select-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'flex';
+  document.getElementById('progress-bar-wrap').style.display = 'block';
+  document.getElementById('prog-label').style.display = 'block';
+  document.getElementById('header-unit').textContent = UNIT_NAMES[unitIdx];
+  resizeCanvas();
+  resetState();
 }
 
 function resetState() {
@@ -384,7 +588,6 @@ function drawStairs(pos) {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Sky gradient
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, '#78c3ff');
   sky.addColorStop(0.6, '#c8ebff');
@@ -392,23 +595,17 @@ function drawStairs(pos) {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // Ground
   ctx.fillStyle = '#82d255';
   ctx.fillRect(0, H - 22, W, 22);
   ctx.fillStyle = '#64af38';
   ctx.fillRect(0, H - 22, W, 5);
 
-  // Stairs
   const sw = W * 0.75, sh = (H - 36) / N;
   const lx = (W - sw) / 2;
   for (let i = 0; i < N; i++) {
     const ty = H - 22 - (i + 1) * sh;
     const done = i < pos;
-    if (done) {
-      ctx.fillStyle = '#6ed46e';
-    } else {
-      ctx.fillStyle = i % 2 === 0 ? '#dad0c6' : '#c6bcb2';
-    }
+    ctx.fillStyle = done ? '#6ed46e' : (i % 2 === 0 ? '#dad0c6' : '#c6bcb2');
     ctx.fillRect(lx, ty, sw, sh);
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.fillRect(lx, ty, sw, 2);
@@ -424,7 +621,6 @@ function drawStairs(pos) {
     }
   }
 
-  // Trophy at top
   const tx = lx + sw * 0.78, ty2 = H - 22 - N * sh - 26;
   ctx.fillStyle = '#a05a14';
   ctx.beginPath(); ctx.roundRect(tx, ty2 + 10, 24, 16, 3); ctx.fill();
@@ -433,32 +629,25 @@ function drawStairs(pos) {
   ctx.fillStyle = '#f0c800';
   ctx.beginPath(); ctx.arc(tx + 12, ty2 + 5, 5, 0, Math.PI * 2); ctx.fill();
 
-  // Bear
   drawBear(ctx, lx + 22, H - 22 - pos * sh);
 }
 
 function drawBear(c, x, y) {
   c.save();
-  // Shadow
   c.fillStyle = 'rgba(0,0,0,0.15)';
   c.beginPath(); c.ellipse(x, y + 4, 12, 4, 0, 0, Math.PI * 2); c.fill();
-  // Body
   c.fillStyle = '#c27828';
   c.beginPath(); c.roundRect(x - 9, y - 14, 18, 16, 6); c.fill();
-  // Head
   c.fillStyle = '#d28030';
   c.beginPath(); c.arc(x, y - 22, 13, 0, Math.PI * 2); c.fill();
-  // Face highlight
   c.fillStyle = '#f0c070';
   c.beginPath(); c.ellipse(x, y - 19, 8, 7, 0, 0, Math.PI * 2); c.fill();
-  // Ears
   c.fillStyle = '#b06020';
   c.beginPath(); c.arc(x - 10, y - 33, 6, 0, Math.PI * 2); c.fill();
   c.beginPath(); c.arc(x + 10, y - 33, 6, 0, Math.PI * 2); c.fill();
   c.fillStyle = '#e08060';
   c.beginPath(); c.arc(x - 10, y - 33, 3, 0, Math.PI * 2); c.fill();
   c.beginPath(); c.arc(x + 10, y - 33, 3, 0, Math.PI * 2); c.fill();
-  // Eyes
   c.fillStyle = 'white';
   c.beginPath(); c.ellipse(x - 4, y - 23, 4, 4.5, 0, 0, Math.PI * 2); c.fill();
   c.beginPath(); c.ellipse(x + 4, y - 23, 4, 4.5, 0, 0, Math.PI * 2); c.fill();
@@ -468,13 +657,12 @@ function drawBear(c, x, y) {
   c.fillStyle = 'white';
   c.beginPath(); c.arc(x - 3, y - 24, 1, 0, Math.PI * 2); c.fill();
   c.beginPath(); c.arc(x + 5, y - 24, 1, 0, Math.PI * 2); c.fill();
-  // Nose
   c.fillStyle = '#3a1a08';
   c.beginPath(); c.ellipse(x, y - 17, 4, 3, 0, 0, Math.PI * 2); c.fill();
   c.restore();
 }
 
-// Confetti for win modal
+// Confetti
 let confettiParts = [];
 let confRaf = null;
 const cfCanvas = document.getElementById('confetti-canvas');
@@ -551,9 +739,14 @@ document.getElementById('answer-input').addEventListener('keydown', e => {
 document.getElementById('modal-ok').addEventListener('click', () => {
   hideModal(); resetState();
 });
+document.getElementById('modal-select').addEventListener('click', () => {
+  hideModal(); showSelectScreen();
+});
 
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('load', () => { resizeCanvas(); resetState(); });
+window.addEventListener('resize', () => {
+  if (currentUnit >= 0) resizeCanvas();
+});
+window.addEventListener('load', () => { showSelectScreen(); });
 </script>
 </body>
 </html>
