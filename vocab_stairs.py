@@ -85,6 +85,56 @@ class CelebrationDialog(QDialog):
                    _ui["win_msg"]+str(self._score)+" / "+str(self._total))
 
 
+class CorrectToast(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self._opacity = 0.0
+        self._anim = QPropertyAnimation(self, b"toast_opacity")
+        self._anim.setEasingCurve(QEasingCurve.InQuad)
+        self._anim.finished.connect(self._on_anim_done)
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._start_fade)
+        self.hide()
+
+    def get_opacity(self): return self._opacity
+    def set_opacity(self, v): self._opacity = v; self.update()
+    toast_opacity = pyqtProperty(float, fget=get_opacity, fset=set_opacity)
+
+    def show_toast(self):
+        if self.parent():
+            pw, ph = self.parent().width(), self.parent().height()
+            w, h = 360, 120
+            self.setGeometry((pw - w) // 2, (ph - h) // 2, w, h)
+        self._anim.stop()
+        self._timer.stop()
+        self._opacity = 1.0
+        self.show(); self.raise_(); self.update()
+        self._timer.start(900)
+
+    def _start_fade(self):
+        self._anim.setDuration(700)
+        self._anim.setStartValue(self._opacity)
+        self._anim.setEndValue(0.0)
+        self._anim.start()
+
+    def _on_anim_done(self):
+        if self._opacity <= 0.01:
+            self.hide()
+
+    def paintEvent(self, _):
+        if self._opacity <= 0: return
+        p = QPainter(self); p.setRenderHint(QPainter.Antialiasing)
+        p.setOpacity(self._opacity)
+        p.setBrush(QColor(34, 160, 84, 235))
+        p.setPen(QPen(QColor(255, 255, 255, 200), 3))
+        p.drawRoundedRect(8, 8, self.width()-16, self.height()-16, 24, 24)
+        p.setPen(QColor(255, 255, 255))
+        p.setFont(QFont("", 32, QFont.Bold))
+        p.drawText(self.rect(), Qt.AlignCenter, "정답!  뀨!")
+
+
 class StairCanvas(QWidget):
     def __init__(self, n, parent=None):
         super().__init__(parent)
@@ -277,6 +327,7 @@ class VocabStairsGame(QWidget):
         rc.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         ml = QHBoxLayout(self); ml.setContentsMargins(0,0,0,0)
         ml.addWidget(self.canvas,5); ml.addWidget(rc,5)
+        self._toast = CorrectToast(self)
 
     # -- reset all state --------------------------------------
     def _reset_state(self):
@@ -328,6 +379,7 @@ class VocabStairsGame(QWidget):
         if ok:
             self._cc+=1; self.lbl_fb.setText(_ui["correct"]+it.word)
             self.lbl_fb.setStyleSheet("font-size:14px;font-weight:bold;color:#1e8449;")
+            self._toast.show_toast()
         else:
             self.lbl_fb.setText(_ui["slide"]+it.word)
             self.lbl_fb.setStyleSheet("font-size:14px;font-weight:bold;color:#c0392b;")
