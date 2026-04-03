@@ -106,9 +106,17 @@
   .unit-card.list2 { border-left: 5px solid #2574a9; }
   .unit-card.list3 { border-left: 5px solid #1e8449; }
   .unit-card.list4 { border-left: 5px solid #8e44ad; }
+  .unit-card.list5 { border-left: 5px solid #e67e22; }
+  .unit-card.list6 { border-left: 5px solid #e74c3c; }
+  .unit-card.list7 { border-left: 5px solid #16a085; }
+  .unit-card.list8 { border-left: 5px solid #2c3e50; }
   .unit-card.list2 .unit-card-num { color: #2574a9; }
   .unit-card.list3 .unit-card-num { color: #1e8449; }
   .unit-card.list4 .unit-card-num { color: #8e44ad; }
+  .unit-card.list5 .unit-card-num { color: #e67e22; }
+  .unit-card.list6 .unit-card-num { color: #e74c3c; }
+  .unit-card.list7 .unit-card-num { color: #16a085; }
+  .unit-card.list8 .unit-card-num { color: #2c3e50; }
 
   /* Game Screen */
   #game-screen { display: none; flex-direction: column; flex: 1; }
@@ -302,6 +310,26 @@
       <div class="unit-card-title">Listening 2 & Grammar Usage 2</div>
       <div class="unit-card-sub">be supposed to · revision · substitute · maternity leave ···</div>
     </div>
+    <div class="unit-card list5" onclick="startGame(3)">
+      <div class="unit-card-num">Vocabulary List 5</div>
+      <div class="unit-card-title">Reading 3 & Grammar 3</div>
+      <div class="unit-card-sub">applause · wreck · irreparable · donation ···</div>
+    </div>
+    <div class="unit-card list6" onclick="startGame(4)">
+      <div class="unit-card-num">Vocabulary List 6</div>
+      <div class="unit-card-title">Listening 3 & Grammar Usage 3</div>
+      <div class="unit-card-sub">completely · deadline · register · submit ···</div>
+    </div>
+    <div class="unit-card list7" onclick="startGame(5)">
+      <div class="unit-card-num">Vocabulary List 7</div>
+      <div class="unit-card-title">Reading 4 & Grammar 4</div>
+      <div class="unit-card-sub">steal · miss out · purchase · in stock ···</div>
+    </div>
+    <div class="unit-card list8" onclick="startGame(6)">
+      <div class="unit-card-num">Vocabulary List 8</div>
+      <div class="unit-card-title">Listening 4 & Grammar Usage 4</div>
+      <div class="unit-card-sub">local · perform · demonstration · erupt ···</div>
+    </div>
   </div>
 
   <!-- Game Screen -->
@@ -437,13 +465,149 @@ const ALL_VOCAB = [
     {"word":"vocalist","meaning":"n. 가수"},
     {"word":"perform","meaning":"v. 공연하다; play"},
     {"word":"take off","meaning":"v. 대인기를 얻다"}
+  ],
+  // List 5: Reading 3 & Grammar 3
+  [
+    {"word":"applause","meaning":"n. 박수; clapping"},
+    {"word":"wreck","meaning":"v. 파괴하다; destroy"},
+    {"word":"irreparable","meaning":"adj. (손실, 부상 등이) 회복할 수 없는, 심각한"},
+    {"word":"donation","meaning":"n. 공헌, 기여; contribution"},
+    {"word":"in charge of","meaning":"~을 맡아서, ~을 담당해서"},
+    {"word":"suitable","meaning":"adj. 적합한, 알맞은; appropriate"},
+    {"word":"arrange","meaning":"v. 마련하다, 계획하다; plan"},
+    {"word":"supply","meaning":"n. 물품, 비품"},
+    {"word":"courteous","meaning":"adj. 공손한; polite"},
+    {"word":"hog","meaning":"v. 독차지하다"},
+    {"word":"frown","meaning":"v. 얼굴을 찡그리다"},
+    {"word":"thump","meaning":"n. 쿵하는 소리; thud"},
+    {"word":"flat tire","meaning":"펑크 난 타이어"},
+    {"word":"huff","meaning":"v. 헉헉 거리다; puff"},
+    {"word":"wipe","meaning":"v. 닦다; rub"},
+    {"word":"weary","meaning":"adj. 피곤한; tired"},
+    {"word":"sweaty","meaning":"adj. 땀에 젖은"},
+    {"word":"finalist","meaning":"n. 결승전 출전자"},
+    {"word":"playoff","meaning":"n. 우승 결정전"},
+    {"word":"handle","meaning":"v. 다루다; manage"},
+    {"word":"additional","meaning":"adj. 추가의; added"},
+    {"word":"approach","meaning":"v. 다가가다; reach"},
+    {"word":"triumphant","meaning":"adj. 큰 승리를 거둔; victorious"},
+    {"word":"out of the question","meaning":"불가능한; impossible"},
+    {"word":"familiar","meaning":"adj. 익숙한; acquainted"},
+    {"word":"definition","meaning":"n. 정의, 의미; meaning"},
+    {"word":"confident","meaning":"adj. 확신하는; certain, assured"},
+    {"word":"presentation","meaning":"n. 발표; talk"},
+    {"word":"work on","meaning":"v. ~에 애쓰다, ~에 노력을 들이다"},
+    {"word":"run into","meaning":"v. ~를 우연히 만나다; bump into"}
+  ],
+  // List 6: Listening 3 & Grammar Usage 3
+  [
+    {"word":"completely","meaning":"adv. 완전히; totally"},
+    {"word":"deadline","meaning":"n. 마감 일자"},
+    {"word":"register","meaning":"v. 등록하다; enlist"},
+    {"word":"submit","meaning":"v. 제출하다; hand in"},
+    {"word":"available","meaning":"adj. 구할 수 있는; ready"},
+    {"word":"continent","meaning":"n. 대륙"},
+    {"word":"plate","meaning":"n. (판구조론에서의) 판"},
+    {"word":"float","meaning":"v. 떠가다; drift"},
+    {"word":"liquid","meaning":"n. 액체"},
+    {"word":"melt","meaning":"v. 녹다; thaw"},
+    {"word":"pressure","meaning":"n. 압력; compression"},
+    {"word":"squeeze","meaning":"v. 짜다; press"},
+    {"word":"spout","meaning":"n. 분출"},
+    {"word":"airborne","meaning":"adj. 하늘에 떠 있는; in the air"},
+    {"word":"slope","meaning":"n. 비탈"},
+    {"word":"parallel","meaning":"adj. 평행한; nonintersecting"},
+    {"word":"average","meaning":"v. 평균 ~이 되다"},
+    {"word":"chemical","meaning":"adj. 화학인, 화학적인; chemic"},
+    {"word":"rub off onto","meaning":"~에서 스쳐 지워지다"},
+    {"word":"populate","meaning":"v. 살다; inhabit"},
+    {"word":"deforestation","meaning":"n. 삼림 벌채"},
+    {"word":"interfere","meaning":"v. 관여하다, 간섭하다; intrude"},
+    {"word":"scattered","meaning":"adj. 산발적인, 산재한; distributed"},
+    {"word":"habitat","meaning":"n. 서식지; habitation"},
+    {"word":"poach","meaning":"v. 밀렵하다; hunt down"},
+    {"word":"in particular","meaning":"특히"},
+    {"word":"measure","meaning":"n. 조치, 정책; maneuver"},
+    {"word":"specific","meaning":"adj. 구체적인, 명확한; precise"},
+    {"word":"equipment","meaning":"n. 장비, 기구; supply"},
+    {"word":"rapidly","meaning":"adv. 급속히, 빨리; quickly"}
+  ],
+  // List 7: Reading 4 & Grammar 4
+  [
+    {"word":"steal","meaning":"n. 싸게 사는 물건; bargain"},
+    {"word":"miss out","meaning":"v. 놓치다"},
+    {"word":"purchase","meaning":"n. 구매; buying"},
+    {"word":"in stock","meaning":"비축되어, 재고로"},
+    {"word":"legend says","meaning":"전설에 의하면"},
+    {"word":"invent","meaning":"v. 발명하다; create"},
+    {"word":"carbohydrate-rich","meaning":"adj. 탄수화물이 풍부한"},
+    {"word":"converted","meaning":"adj. 전환된, 변환된"},
+    {"word":"otherwise","meaning":"adv. 그렇지 않으면"},
+    {"word":"derived","meaning":"adj. 유래된, 파생된"},
+    {"word":"substance","meaning":"n. 물질; element"},
+    {"word":"on behalf of","meaning":"adv. ~를 대신하여"},
+    {"word":"pop in","meaning":"v. 불쑥 방문하다"},
+    {"word":"fit","meaning":"v. 잘 맞다; suit"},
+    {"word":"in terms of","meaning":"~ 면에서, ~에 관하여"},
+    {"word":"ancient","meaning":"adj. 고대의; old"},
+    {"word":"ruins","meaning":"n. 폐허; devastation"},
+    {"word":"participate","meaning":"v. 참여하다; take part"},
+    {"word":"allow","meaning":"v. 허락하다; permit"},
+    {"word":"observer","meaning":"n. 보는 사람; viewer"},
+    {"word":"marble","meaning":"n. 대리석"},
+    {"word":"gather","meaning":"v. 모이다; accumulate"},
+    {"word":"chaos","meaning":"n. 혼란; confusion"},
+    {"word":"eventually","meaning":"adv. 결국; finally"},
+    {"word":"blow somebody away","meaning":"v. ~를 놀라게 하다; shock somebody"},
+    {"word":"upcoming","meaning":"adj. 다가오는; approaching"},
+    {"word":"sponsored","meaning":"adj. ~가 지원하는; supported"},
+    {"word":"compete","meaning":"v. 경쟁하다; race"},
+    {"word":"cap","meaning":"n. 모자"},
+    {"word":"promotion","meaning":"n. 승진; advancement"}
+  ],
+  // List 8: Listening 4 & Grammar Usage 4
+  [
+    {"word":"local","meaning":"adj. 지역의"},
+    {"word":"perform","meaning":"v. 공연을 하다"},
+    {"word":"demonstration","meaning":"n. 시범; show"},
+    {"word":"erupt","meaning":"v. 분출하다; rupture"},
+    {"word":"region","meaning":"n. 지역; area"},
+    {"word":"last","meaning":"v. 지속되다; continue"},
+    {"word":"preserved","meaning":"adj. 보존된; retained"},
+    {"word":"tourist attraction","meaning":"관광 명소"},
+    {"word":"muddy","meaning":"adj. 진흙투성이인; mucky"},
+    {"word":"remove","meaning":"v. 지우다; erase"},
+    {"word":"rinse","meaning":"v. 헹구다; wash"},
+    {"word":"faucet","meaning":"n. 수도 꼭지"},
+    {"word":"janitor","meaning":"n. 수위"},
+    {"word":"get rid of","meaning":"제거하다; remove"},
+    {"word":"banned","meaning":"adj. 금지의; prohibited"},
+    {"word":"detention","meaning":"n. 방과 후 남게 하기; custody"},
+    {"word":"property","meaning":"n. 건물 구내; land"},
+    {"word":"responsible","meaning":"adj. 책임이 있는; accountable"},
+    {"word":"pay off","meaning":"보답하다, ~을 갚다; reward"},
+    {"word":"Geometry","meaning":"n. 기하학"},
+    {"word":"from scratch","meaning":"맨 처음부터"},
+    {"word":"plumbing","meaning":"n. 배관"},
+    {"word":"located","meaning":"adj. ~에 위치한; placed"},
+    {"word":"constantly","meaning":"adv. 끊임없이; incessantly"},
+    {"word":"improve","meaning":"v. 개선되다, 나아지다; develop"},
+    {"word":"semester","meaning":"n. 학기"},
+    {"word":"prove","meaning":"v. 증명하다; verify"},
+    {"word":"worth","meaning":"adj. ~할 만한 가치가 있는; deserving"},
+    {"word":"senior year","meaning":"최고 학년"},
+    {"word":"impress","meaning":"v. 깊은 인상을 주다; move"}
   ]
 ];
 
 const UNIT_NAMES = [
   'List 2 · Listening 1 & Grammar Usage 1',
   'List 3 · Reading 2 & Grammar 2',
-  'List 4 · Listening 2 & Grammar Usage 2'
+  'List 4 · Listening 2 & Grammar Usage 2',
+  'List 5 · Reading 3 & Grammar 3',
+  'List 6 · Listening 3 & Grammar Usage 3',
+  'List 7 · Reading 4 & Grammar 4',
+  'List 8 · Listening 4 & Grammar Usage 4'
 ];
 
 let VOCAB = [];
