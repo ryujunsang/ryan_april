@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>English Test – Lesson 4</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #eef2ff 0%, #e8f4fd 100%);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+#header {
+  background: linear-gradient(135deg, #1a2860, #2574a9);
+  color: white;
+  padding: 14px 20px 12px;
+  text-align: center;
+  position: sticky; top: 0; z-index: 20;
+  box-shadow: 0 2px 10px rgba(37,116,169,0.4);
+}
+#header h1 { font-size: 18px; font-weight: bold; letter-spacing: 0.3px; }
+#header p { font-size: 11px; opacity: 0.75; margin-top: 3px; }
+#tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #c5d0f0;
+  overflow-x: auto;
+  position: sticky; top: 56px; z-index: 10;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+#tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 10px 14px;
+  font-size: 13px; font-weight: bold;
+  color: #889; cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap; flex-shrink: 0;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active { color: #2574a9; border-bottom-color: #2574a9; }
+
+.section { display: none; padding: 16px; max-width: 680px; margin: 0 auto; }
+.section.active { display: block; }
+.sec-hd { font-size: 15px; font-weight: bold; color: #1a2860; margin-bottom: 3px; }
+.sec-sub { font-size: 12px; color: #667; margin-bottom: 14px; }
+
+/* ── Q-row (sections 一 and 二) ── */
+.q-row {
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1.5px solid #c5d0f0;
+  border-radius: 9px; padding: 9px 12px;
+  margin-bottom: 8px; transition: border-color 0.2s, background 0.2s;
+}
+.q-row.correct { border-color: #1e8449; background: #f4fff7; }
+.q-row.wrong   { border-color: #c0392b; background: #fff4f4; }
+.q-num {
+  font-size: 12px; font-weight: bold; color: #2574a9;
+  min-width: 22px; flex-shrink: 0;
+}
+.q-word {
+  font-size: 14px; color: #1a2860; font-weight: 500;
+  min-width: 140px; flex-shrink: 0; line-height: 1.4;
+}
+.q-word.kr { color: #8e44ad; }
+.q-input {
+  flex: 1; border: 1.5px solid #c5d0f0; border-radius: 6px;
+  padding: 6px 9px; font-size: 14px; outline: none;
+  background: #f8f9ff; min-width: 0;
+  transition: border-color 0.2s;
+}
+.q-input:focus { border-color: #2574a9; background: white; }
+.q-ans {
+  font-size: 12px; color: #1e8449; font-weight: bold;
+  display: none; flex-shrink: 0; max-width: 130px;
+}
+
+/* ── Sentence / Collocation ── */
+.sent-item {
+  background: white; border: 1.5px solid #c5d0f0; border-radius: 10px;
+  padding: 13px 14px; margin-bottom: 12px;
+}
+.sent-num { font-size: 12px; font-weight: bold; color: #2574a9; margin-bottom: 4px; }
+.sent-kr { font-size: 13px; color: #556; margin-bottom: 9px; line-height: 1.55; }
+.sent-en { font-size: 14px; color: #1a2860; line-height: 2.5; word-break: keep-all; }
+.blank {
+  display: inline-block;
+  border: none; border-bottom: 2px solid #2574a9;
+  background: transparent; font-size: 14px;
+  color: #1a2860; outline: none;
+  padding: 0 3px; text-align: center;
+  vertical-align: bottom; transition: border-color 0.2s, color 0.2s;
+}
+.blank:focus { border-bottom-color: #8e44ad; }
+.blank.correct { border-bottom-color: #1e8449; color: #1e8449; }
+.blank.wrong   { border-bottom-color: #c0392b; color: #c0392b; }
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 10px; margin: 18px 0 8px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 20px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: bold; color: white; cursor: pointer;
+  transition: opacity 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.btn:active { opacity: 0.75; }
+.btn-blue   { background: #2574a9; }
+.btn-purple { background: #8e44ad; }
+.btn-gray   { background: #7f8c8d; }
+
+.result-box {
+  background: #f0f8ff; border: 1.5px solid #2574a9; border-radius: 9px;
+  padding: 11px 14px; font-size: 14px; color: #1a2860; display: none; margin-top: 6px;
+}
+.result-box.show { display: block; }
+
+.note-tag {
+  font-size: 10px; color: #e67e22; font-weight: normal;
+  background: #fff3e0; border-radius: 3px; padding: 1px 4px; margin-left: 4px;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>📝 ENGLISH Test — Lesson 4</h1>
+  <p>건축 음향학 (Architectural Acoustics)</p>
+</div>
+
+<div id="tabs">
+  <div class="tab active" onclick="showTab(0)">(一) 단어 뜻</div>
+  <div class="tab" onclick="showTab(1)">(二) 우리말→영어</div>
+  <div class="tab" onclick="showTab(2)">(三) Collocation</div>
+  <div class="tab" onclick="showTab(3)">(四) 문장 완성</div>
+</div>
+
+<!-- ─────────── Section 一 ─────────── -->
+<div class="section active" id="sec0">
+  <div class="sec-hd">(一) 다음 단어의 뜻을 쓰세요.</div>
+  <div class="sec-sub">단어를 보고 뜻을 쓰세요.&nbsp; ※ ⑯번은 영어 단어를 쓰세요.</div>
+  <div id="s1-wrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-purple" onclick="showSec1()">정답 보기</button>
+    <button class="btn btn-gray"   onclick="resetSec1()">초기화</button>
+  </div>
+</div>
+
+<!-- ─────────── Section 二 ─────────── -->
+<div class="section" id="sec1">
+  <div class="sec-hd">(二) 다음 우리말을 영어로 쓰세요.</div>
+  <div class="sec-sub">한국어를 보고 영어 단어를 입력하세요.</div>
+  <div id="s2-wrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-blue"   onclick="checkSec2()">정답 확인</button>
+    <button class="btn btn-gray"   onclick="resetSec2()">초기화</button>
+  </div>
+  <div class="result-box" id="s2-result"></div>
+</div>
+
+<!-- ─────────── Section 三 ─────────── -->
+<div class="section" id="sec2">
+  <div class="sec-hd">(三) 다음 Collocation을 완성하세요.</div>
+  <div class="sec-sub">우리말을 참고하여 빈칸을 채우세요.</div>
+  <div id="s3-wrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-blue"   onclick="checkSec3()">정답 확인</button>
+    <button class="btn btn-gray"   onclick="resetSec3()">초기화</button>
+  </div>
+  <div class="result-box" id="s3-result"></div>
+</div>
+
+<!-- ─────────── Section 四 ─────────── -->
+<div class="section" id="sec3">
+  <div class="sec-hd">(四) 다음 영어 문장을 완성하세요.</div>
+  <div class="sec-sub">우리말을 참고하여 빈칸을 채우세요.</div>
+  <div id="s4-wrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-blue"   onclick="checkSec4()">정답 확인</button>
+    <button class="btn btn-gray"   onclick="resetSec4()">초기화</button>
+  </div>
+  <div class="result-box" id="s4-result"></div>
+</div>
+
+<script>
+/* ───────── Tab ───────── */
+function showTab(i) {
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', i === j));
+  document.querySelectorAll('.section').forEach((s, j) => s.classList.toggle('active', i === j));
+}
+
+/* ═══════════════════════════════════════
+   Section 一  (단어 뜻 — self-check)
+═══════════════════════════════════════ */
+const S1_DATA = [
+  {q:'absorbed',              a:'흡수된'},
+  {q:'adjust',                a:'조절하다'},
+  {q:'architectural acoustics', a:'건축 음향학'},
+  {q:'audience',              a:'청중'},
+  {q:'acoustician',           a:'음향학자'},
+  {q:'bounce off',            a:'반사되다'},
+  {q:'canyon',                a:'협곡'},
+  {q:'closet',                a:'벽장'},
+  {q:'control',               a:'조절하다'},
+  {q:'delay',                 a:'지연'},
+  {q:'depend on',             a:'~에 달려 있다'},
+  {q:'disappear',             a:'사라지다'},
+  {q:'ensure',                a:'보장하다'},
+  {q:'experience',            a:'경험'},
+  {q:'ideal',                 a:'이상적인'},
+  {q:'강도 (세기)',            a:'intensity', note:'영어로'},
+  {q:'interior',              a:'내부의'},
+  {q:'material',              a:'재료'},
+  {q:'line with',             a:'~로 안을 대다'},
+  {q:'maximize',              a:'극대화하다'},
+  {q:'modern',                a:'현대의'},
+  {q:'narrow',                a:'좁은'},
+  {q:'prefer',                a:'선호하다'},
+  {q:'performance',           a:'공연'},
+  {q:'quality',               a:'질, 품질'},
+  {q:'rear',                  a:'뒤, 후방'},
+  {q:'rectangular',           a:'직사각형의'},
+  {q:'reverberation',         a:'잔향, 반향'},
+  {q:'rug',                   a:'깔개, 양탄자'},
+  {q:'shorten',               a:'줄이다'},
+  {q:'similarly',             a:'마찬가지로'},
+  {q:'thin',                  a:'얇은'},
+  {q:'undesirable',           a:'달갑지 않는'},
+];
+
+(function buildS1() {
+  const wrap = document.getElementById('s1-wrap');
+  S1_DATA.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'q-row';
+    const isKr = item.note;
+    row.innerHTML =
+      '<span class="q-num">(' + (i + 1) + ')</span>' +
+      '<span class="q-word' + (isKr ? ' kr' : '') + '">' + item.q +
+        (item.note ? '<span class="note-tag">' + item.note + '</span>' : '') +
+      '</span>' +
+      '<input class="q-input" type="text" id="s1-' + i + '" placeholder="정답...">' +
+      '<span class="q-ans" id="s1a-' + i + '">' + item.a + '</span>';
+    wrap.appendChild(row);
+  });
+})();
+
+function showSec1() {
+  S1_DATA.forEach((_, i) => {
+    document.getElementById('s1a-' + i).style.display = 'inline';
+  });
+}
+function resetSec1() {
+  S1_DATA.forEach((_, i) => {
+    document.getElementById('s1-' + i).value = '';
+    document.getElementById('s1a-' + i).style.display = 'none';
+  });
+}
+
+/* ═══════════════════════════════════════
+   Section 二  (우리말→영어 — auto-check)
+═══════════════════════════════════════ */
+const S2_DATA = [
+  {q:'달갑지 않는',   a:['undesirable']},
+  {q:'이상적인',      a:['ideal']},
+  {q:'(소리) 잔향',  a:['reverberation']},
+  {q:'공연',          a:['performance']},
+  {q:'극대화하다',    a:['maximize']},
+  {q:'사라지다',      a:['disappear']},
+  {q:'재료',          a:['material']},
+  {q:'보장하다',      a:['ensure']},
+  {q:'메아리',        a:['echo']},
+  {q:'지연',          a:['delay']},
+  {q:'흡수',          a:['absorption','absorb']},
+  {q:'청중',          a:['audience']},
+  {q:'조절하다',      a:['adjust','control']},
+  {q:'흡수 된다',     a:['absorbed','be absorbed']},
+];
+
+(function buildS2() {
+  const wrap = document.getElementById('s2-wrap');
+  S2_DATA.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'q-row';
+    row.id = 's2r-' + i;
+    row.innerHTML =
+      '<span class="q-num">(' + (i + 1) + ')</span>' +
+      '<span class="q-word kr">' + item.q + '</span>' +
+      '<span style="color:#aab;flex-shrink:0">→</span>' +
+      '<input class="q-input" type="text" id="s2-' + i + '" placeholder="영어로...">';
+    wrap.appendChild(row);
+  });
+})();
+
+function checkSec2() {
+  let correct = 0;
+  S2_DATA.forEach((item, i) => {
+    const val = (document.getElementById('s2-' + i).value || '').trim().toLowerCase();
+    const ok = item.a.some(a => val === a.toLowerCase());
+    const row = document.getElementById('s2r-' + i);
+    row.classList.toggle('correct', ok);
+    row.classList.toggle('wrong', !ok && val !== '');
+    if (ok) correct++;
+  });
+  showResult('s2-result', correct, S2_DATA.length);
+}
+function resetSec2() {
+  S2_DATA.forEach((_, i) => {
+    document.getElementById('s2-' + i).value = '';
+    const row = document.getElementById('s2r-' + i);
+    row.classList.remove('correct', 'wrong');
+  });
+  hideResult('s2-result');
+}
+
+/* ═══════════════════════════════════════
+   Section 三  (Collocation — auto-check)
+═══════════════════════════════════════ */
+const S3_DATA = [
+  {
+    kr: '잔향을 조절하다',
+    parts: [
+      {b:true, a:['control'], sz:9},
+      {t:' reverberation.'}
+    ]
+  },
+  {
+    kr: '청중의 청취 경험',
+    parts: [
+      {t:"the audience's "},
+      {b:true, a:['listening'], sz:10},
+      {t:' '},
+      {b:true, a:['experience'], sz:11},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '좋은 음질을 보장하다',
+    parts: [
+      {b:true, a:['ensure'], sz:8},
+      {t:' good sound '},
+      {b:true, a:['quality'], sz:8},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '더 멀리 그리고 더 넓게 소리가 퍼질수록',
+    parts: [
+      {t:'the '},
+      {b:true, a:['farther','further'], sz:9},
+      {t:' and '},
+      {b:true, a:['wider'], sz:7},
+      {t:' sound '},
+      {b:true, a:['travels','spreads'], sz:9},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '달갑지 않는 효과',
+    parts: [
+      {t:'an '},
+      {b:true, a:['undesirable'], sz:12},
+      {t:' '},
+      {b:true, a:['effect'], sz:7},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '청중의 청취체험을 극대화하다',
+    parts: [
+      {b:true, a:['maximize'], sz:9},
+      {t:' the '},
+      {b:true, a:["audience's"], sz:11},
+      {t:' '},
+      {b:true, a:['listening'], sz:10},
+      {t:' experience.'}
+    ]
+  },
+  {
+    kr: '앞쪽이 좁은',
+    parts: [
+      {b:true, a:['narrow'], sz:7},
+      {t:' in the front.'}
+    ]
+  },
+  {
+    kr: '뒤쪽이 넓은',
+    parts: [
+      {b:true, a:['wide'], sz:6},
+      {t:' in the '},
+      {b:true, a:['rear'], sz:6},
+      {t:'.'}
+    ]
+  },
+];
+
+let s3Map = [];
+(function buildS3() {
+  const wrap = document.getElementById('s3-wrap');
+  let idx = 0;
+  s3Map = [];
+  S3_DATA.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'sent-item';
+    div.innerHTML =
+      '<div class="sent-num">(' + (qi + 1) + ')</div>' +
+      '<div class="sent-kr">' + item.kr + '</div>';
+    const en = document.createElement('div');
+    en.className = 'sent-en';
+    item.parts.forEach(p => {
+      if (p.b) {
+        const inp = document.createElement('input');
+        inp.className = 'blank';
+        inp.type = 'text';
+        inp.size = p.sz || 10;
+        inp.id = 's3b-' + idx;
+        s3Map.push({idx: idx, a: p.a});
+        idx++;
+        en.appendChild(inp);
+      } else {
+        en.appendChild(document.createTextNode(p.t));
+      }
+    });
+    div.appendChild(en);
+    wrap.appendChild(div);
+  });
+})();
+
+function checkSec3() {
+  let correct = 0;
+  s3Map.forEach(({idx, a}) => {
+    const el = document.getElementById('s3b-' + idx);
+    const val = (el.value || '').trim().toLowerCase();
+    const ok = a.some(x => val === x.toLowerCase());
+    el.classList.toggle('correct', ok);
+    el.classList.toggle('wrong', !ok && val !== '');
+    if (ok) correct++;
+  });
+  showResult('s3-result', correct, s3Map.length);
+}
+function resetSec3() {
+  s3Map.forEach(({idx}) => {
+    const el = document.getElementById('s3b-' + idx);
+    el.value = '';
+    el.classList.remove('correct', 'wrong');
+  });
+  hideResult('s3-result');
+}
+
+/* ═══════════════════════════════════════
+   Section 四  (문장 완성 — auto-check)
+═══════════════════════════════════════ */
+const S4_DATA = [
+  {
+    kr: '콘서트홀은 건축음향학을 이용하여 청중의 청취체험을 극대화한다.',
+    parts: [
+      {t:'Concert halls use '},
+      {b:true, a:['architectural'], sz:14},
+      {t:' '},
+      {b:true, a:['acoustics'], sz:10},
+      {t:" to maximize the audience's "},
+      {b:true, a:['listening'], sz:10},
+      {t:' experience.'}
+    ]
+  },
+  {
+    kr: '여러분은 메아리가 협곡의 벽에 반사되어 여러분에게 되돌아 오는 것을 들을 수 있을 것이다.',
+    parts: [
+      {t:'You can hear your '},
+      {b:true, a:['echo'], sz:6},
+      {t:' bounce off the canyon walls and '},
+      {b:true, a:['come back','return','come back again'], sz:12},
+      {t:' to you.'}
+    ]
+  },
+  {
+    kr: '울림들은 대부분의 공연들에서 달갑지 않는 효과이다.',
+    parts: [
+      {t:'Echoes are an '},
+      {b:true, a:['undesirable'], sz:12},
+      {t:' '},
+      {b:true, a:['effect'], sz:7},
+      {t:' for most '},
+      {b:true, a:['performances'], sz:13},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '이상적인 잔향시간은 연주되고 있는 음악에 따라 다르다.',
+    parts: [
+      {t:'The '},
+      {b:true, a:['ideal'], sz:6},
+      {t:' reverberation time '},
+      {b:true, a:['depends'], sz:8},
+      {t:' '},
+      {b:true, a:['on'], sz:4},
+      {t:' the music '},
+      {b:true, a:['being'], sz:6},
+      {t:' played.'}
+    ]
+  },
+  {
+    kr: '소리에너지는 소리의 강도, 즉 다시 말하면 소리의 세기이다.',
+    parts: [
+      {t:'Sound energy is the '},
+      {b:true, a:['intensity'], sz:10},
+      {t:' of sound, or in other words, '},
+      {b:true, a:['sound intensity','its intensity','intensity','the intensity of sound'], sz:16},
+      {t:'.'}
+    ]
+  },
+  {
+    kr: '부채꼴의 콘서트홀은 앞쪽은 좁고 뒤쪽은 넓다.',
+    parts: [
+      {t:'A fan-shaped concert hall is '},
+      {b:true, a:['narrow'], sz:7},
+      {t:' in the front and '},
+      {b:true, a:['wide'], sz:6},
+      {t:' in the '},
+      {b:true, a:['rear'], sz:6},
+      {t:'.'}
+    ]
+  },
+];
+
+let s4Map = [];
+(function buildS4() {
+  const wrap = document.getElementById('s4-wrap');
+  let idx = 0;
+  s4Map = [];
+  S4_DATA.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'sent-item';
+    div.innerHTML =
+      '<div class="sent-num">(' + (qi + 1) + ')</div>' +
+      '<div class="sent-kr">' + item.kr + '</div>';
+    const en = document.createElement('div');
+    en.className = 'sent-en';
+    item.parts.forEach(p => {
+      if (p.b) {
+        const inp = document.createElement('input');
+        inp.className = 'blank';
+        inp.type = 'text';
+        inp.size = p.sz || 10;
+        inp.id = 's4b-' + idx;
+        s4Map.push({idx: idx, a: p.a});
+        idx++;
+        en.appendChild(inp);
+      } else {
+        en.appendChild(document.createTextNode(p.t));
+      }
+    });
+    div.appendChild(en);
+    wrap.appendChild(div);
+  });
+})();
+
+function checkSec4() {
+  let correct = 0;
+  s4Map.forEach(({idx, a}) => {
+    const el = document.getElementById('s4b-' + idx);
+    const val = (el.value || '').trim().toLowerCase();
+    const ok = a.some(x => val === x.toLowerCase());
+    el.classList.toggle('correct', ok);
+    el.classList.toggle('wrong', !ok && val !== '');
+    if (ok) correct++;
+  });
+  showResult('s4-result', correct, s4Map.length);
+}
+function resetSec4() {
+  s4Map.forEach(({idx}) => {
+    const el = document.getElementById('s4b-' + idx);
+    el.value = '';
+    el.classList.remove('correct', 'wrong');
+  });
+  hideResult('s4-result');
+}
+
+/* ── Helpers ── */
+function showResult(id, correct, total) {
+  const el = document.getElementById(id);
+  const pct = Math.round(correct / total * 100);
+  el.className = 'result-box show';
+  el.innerHTML =
+    '✅ 정답: <strong>' + correct + ' / ' + total + '</strong>&nbsp;&nbsp;' +
+    '(' + pct + '%)' +
+    (pct === 100 ? '&nbsp; 🎉 완벽!' : pct >= 70 ? '&nbsp; 👍 잘했어요!' : '&nbsp; 💪 다시 도전!');
+}
+function hideResult(id) {
+  document.getElementById(id).className = 'result-box';
+}
+
+/* Enter key advances to next input */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const inputs = Array.from(document.querySelectorAll('.section.active input'));
+    const i = inputs.indexOf(document.activeElement);
+    if (i >= 0 && i < inputs.length - 1) inputs[i + 1].focus();
+  }
+});
+</script>
+</body>
+</html>
