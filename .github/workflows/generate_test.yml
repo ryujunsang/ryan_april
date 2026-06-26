@@ -1,0 +1,64 @@
+name: Generate Test Pages from Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*_no*.jpg'
+      - '*_no*.jpeg'
+      - '*_no*.png'
+
+# 봇이 커밋한 경우 무한루프 방지
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Detect changed image prefixes
+        id: detect
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '_no[0-9]+\.(jpg|jpeg|png)$' || true)
+          echo "Changed image files:"
+          echo "$CHANGED"
+          PREFIXES=$(echo "$CHANGED" | grep -oE '^[^_]+' | sort -u | tr '\n' ' ' | xargs)
+          echo "Prefixes to generate: $PREFIXES"
+          echo "prefixes=$PREFIXES" >> $GITHUB_OUTPUT
+
+      - name: Generate HTML test pages
+        if: steps.detect.outputs.prefixes != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          for prefix in ${{ steps.detect.outputs.prefixes }}; do
+            echo "=== Generating: $prefix ==="
+            python generate_test.py "$prefix"
+          done
+
+      - name: Commit generated pages
+        if: steps.detect.outputs.prefixes != ''
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add *_test.html
+          if git diff --staged --quiet; then
+            echo "변경 없음. 스킵."
+          else
+            git commit -m "Auto-generate test pages from images [skip ci]"
+            git push
+          fi
